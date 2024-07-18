@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# References: https://python.langchain.com/v0.1/docs/integrations/llms/google_vertex_ai_palm/
+#             https://cloud.google.com/speech-to-text/docs
+#             https://cloud.google.com/text-to-speech/docs
+#
 # Description: This Python script is designed to handle various AI-driven tasks, including text-based conversations,
 # speech recognition (speech-to-text), and speech synthesis (text-to-speech). It integrates Google Cloud services and other libraries to accomplish these tasks.
 #
