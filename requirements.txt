@@ -1,0 +1,11 @@
+python-dotenv
+sounddevice
+soundfile
+opencv-contrib-python
+opencv-python-headless
+pyaudio
+google-auth
+google-cloud-texttospeech
+google-cloud-speech
+langchain
+langchain-google-vertexai
