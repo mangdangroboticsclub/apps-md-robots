@@ -25,23 +25,5 @@ edit .env file, set your google cloud api key file path. And run:
 python ai_bot.py
 ```
 
-
-
-
-## License
-
-Copyright 2024 [MangDang](https://www.mangdang.net/)
-
-Apache-2.0 license
-
-MangDang specializes in the research, development, and production of robot products that make peoples lives better. We are a global team with members from many countries and regions.
-
-Many global talents are contributing to this project, you can find them on the GitHub page, we appreciate all their contribution.
-
-If you have an interest in contributing, please check the below link and send a mail to afreez@mangdang.net
-https://github.com/mangdangroboticsclub/mini_pupper_2_bsp/blob/main/CONTRIBUTING.md
-
-All the source code are licensed under Apache-2.0 license, but NOT include the below modules.
-
 ### GPL source code in this repository
 * [FuelGauge](./FuelGauge)
