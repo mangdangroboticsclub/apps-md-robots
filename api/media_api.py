@@ -1,3 +1,27 @@
+#
+# Copyright 2024 MangDang (www.mangdang.net) 
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Description: This Python script provides a comprehensive set of functionalities to capture and display images,
+# resize images, and play GIF animations on a display using a webcam and an ST7789 display module.
+#
+# Taking Photo Displaying Test Method: Type 'photo', then press  enter.
+# Displaying Photo from Path Test Method: Type 'path', press enter, then type the path to your desired photo, then press enter.
+# Resizing Photo and Displaying Test Method: Type 'resize', press enter, then type the path to your desired photo, then press enter.
+# Displaying GIF Test Method: Type 'gif', then press enter.
+#
+
 import logging
 import cv2
 import numpy as np

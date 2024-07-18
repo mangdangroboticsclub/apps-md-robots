@@ -1,3 +1,27 @@
+#
+# Copyright 2024 MangDang (www.mangdang.net) 
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Description: This Python script is designed to handle various AI-driven tasks, including text-based conversations,
+# speech recognition (speech-to-text), and speech synthesis (text-to-speech). It integrates Google Cloud services and other libraries to accomplish these tasks.
+#
+# Gemini Test Method: type 'text' followed by a ' ' (space), and the text you want to type, then press enter.
+# Gemini Visio Pro Test method: type 'image' followed by a ' ' (space), and the text you want to type, then press enter.
+# Speech-T-Text Test method: type 'text'. After pressing enter, start speaking, then press enter.
+# Text-To-Speech Test method: type 'text' followed by a ' ' (space), and the text you want to type, then press enter.
+#
+
 import logging
 import os
 import base64
