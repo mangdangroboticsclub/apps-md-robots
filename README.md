@@ -25,5 +25,3 @@ edit .env file, set your google cloud api key file path. And run:
 python ai_bot.py
 ```
 
-### GPL source code in this repository
-* [FuelGauge](./FuelGauge)
