@@ -33,6 +33,8 @@ Clone this repo.
 ```
 cd ~
 git clone https://github.com/mangdangroboticsclub/gemini-md-bot
+cd gemini-md-bot
+./install.sh
 
 ```
 
@@ -41,5 +43,17 @@ Set your google cloud API key in env.example file and then enjoy.
 ```
 # set your key in env.example, then 
 cp env.example .env
-python ai_bot.py
+```
+Then add this line at the end of your .bashrc "export GOOGLE_APPLICATION_CREDENTIALS=/<your own  api key path>" by these steps:
+```
+vim ~/.bashrc
+```
+After adding, source it to .bashrc
+```
+source ~/.bashrc
+```
+
+Now you can try using the gemini-md-bot
+```
+python gemini-md-bot.py
 ```
