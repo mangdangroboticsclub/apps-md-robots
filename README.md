@@ -29,6 +29,8 @@ Step 2: Install the [quadruped repo](https://github.com/mangdangroboticsclub/Sta
 
 ## Run on Mini Pupper 2: 
 
+[![Installation Guide](https://img.youtube.com/vi/oWGw5c0sRwc/0.jpg)](https://www.youtube.com/watch?v=oWGw5c0sRwc)
+
 Clone this repo.
 ```
 cd ~
