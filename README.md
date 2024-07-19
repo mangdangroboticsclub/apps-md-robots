@@ -29,13 +29,7 @@ Step 2: Install the [quadruped repo](https://github.com/mangdangroboticsclub/Sta
 
 ## Run on Mini Pupper 2: 
 
-
-.. raw:: html
-
-    <div style="position: relative; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/oWGw5c0sRwc?mute=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    </div>
-
+[![Installation Guide](https://img.youtube.com/vi/oWGw5c0sRwc/0.jpg)](https://www.youtube.com/watch?v=oWGw5c0sRwc)
 
 Clone this repo.
 ```
