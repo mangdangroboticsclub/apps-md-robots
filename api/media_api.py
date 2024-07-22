@@ -1,5 +1,5 @@
 #
-# Copyright 2024 MangDang (www.mangdang.net) 
+# Copyright 2024 MangDang (www.mangdang.net)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,13 +27,26 @@ import cv2
 import numpy as np
 from PIL import Image
 import sys
+import os
 
 sys.path.append("..")
-from MangDang.LCD.ST7789 import ST7789
+sys.path.append("/home/ubuntu/Robotics/QuadrupedRobot")
+sys.path.extend([os.path.join(root, name) for root, dirs, _ in os.walk("/home/ubuntu/Robotics/QuadrupedRobot") for name in dirs])
+from Mangdang.LCD.ST7789 import ST7789
 from api.gif import AnimatedGif
 
-disp = ST7789()
+#disp = ST7789()
+#disp.begin()
+with open("/home/ubuntu/.hw_version", "r") as hw_f:
+    hw_version = hw_f.readline()
+
+if hw_version == 'P1\n':
+    disp = ST7789(14, 15, 47)
+else :
+    disp = ST7789(27, 24, 26)
 disp.begin()
+disp.clear()
+
 
 def take_photo():
     """
@@ -43,7 +56,7 @@ def take_photo():
     - image (PIL.Image): The captured image or None if the webcam is not accessible.
     """
     cap = cv2.VideoCapture(0)
-    
+
     if not cap.isOpened():
         return None
 
@@ -160,13 +173,13 @@ def main():
 
     while True:
         user_input = input("Enter function apis --- 'photo'/'resize' or 'exit' to quit: ").strip().lower()
-        
+
         if user_input == 'exit':
            logging.info("Exit!")
            break
         elif user_input == 'photo':
             image = take_photo()
-            
+
             if not image:
                 logging.info("No image!")
             else:
