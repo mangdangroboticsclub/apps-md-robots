@@ -12,8 +12,13 @@ Mini Pupper will make robotics easier for schools, homeschool families, enthusia
 ## Overview
 
 This repository is Google Gemini Demo APPs, it can be run on Mini Pupper2 and Mini Pupper. 
-The default branch works on Mini Pupper2.
-The new branch for Mini Pupper will be added soon.
+The default branch works on Mini Pupper2, please click the picture and refer to the demo video.
+
+[![Run on MD-Puppy1](https://img.youtube.com/vi/mIDuIZCevIg/0.jpg)](https://www.youtube.com/watch?v=mIDuIZCevIg)
+
+The new branch for Mini Pupper will be added soon, please click the picture and refer to the demo video.
+
+[![Run on MD-Puppy1](https://img.youtube.com/vi/bvH-lA1IHig/0.jpg)](https://www.youtube.com/watch?v=bvH-lA1IHig)
 
 ## Preparation
 
@@ -27,9 +32,12 @@ Step 1: Install the [BSP repo](https://github.com/mangdangroboticsclub/mini_pupp
 Step 2: Install the [quadruped repo](https://github.com/mangdangroboticsclub/StanfordQuadruped )
 
 
-## Run on Mini Pupper 2: 
+## Install
 
-[![Installation Guide](https://img.youtube.com/vi/oWGw5c0sRwc/0.jpg)](https://www.youtube.com/watch?v=oWGw5c0sRwc)
+For the video guide, please click the picture and refer to the demo video.
+
+[![Installation Guide](https://img.youtube.com/vi/1AkhJi2o8rM/0.jpg)](https://www.youtube.com/watch?v=1AkhJi2o8rM)
+
 
 Clone this repo.
 ```
@@ -40,12 +48,34 @@ cd gemini-md-bot
 
 ```
 
-Set your google cloud API key in .env file and then enjoy.
+
+Set your google cloud API key in env.example file and then enjoy.
+ 
+```
+# set your key in env.example, then 
+cp env.example .env
+```
+
+Then add this line at the end of your .bashrc "export GOOGLE_APPLICATION_CREDENTIALS=/<your own  api key path>" by these steps:
+```
+vim ~/.bashrc
+```
+
+After adding, source it to .bashrc
+```
+source ~/.bashrc
+```
+
+Run
+=======
+Set your Google Cloud API key in .env file and then enjoy.
  
 ```
 cp env.example .env
 ```
+
 Edit .env file and set your key path, then you can try using the gemini-md-bot
+
 ```
 python gemini-md-bot.py
 ```
