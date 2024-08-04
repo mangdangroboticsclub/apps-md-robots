@@ -56,16 +56,6 @@ Set your google cloud API key in env.example file and then enjoy.
 cp env.example .env
 ```
 
-Then add this line at the end of your .bashrc "export GOOGLE_APPLICATION_CREDENTIALS=/<your own  api key path>" by these steps:
-```
-vim ~/.bashrc
-```
-
-After adding, source it to .bashrc
-```
-source ~/.bashrc
-```
-
 Run
 =======
 Set your Google Cloud API key in .env file and then enjoy.
