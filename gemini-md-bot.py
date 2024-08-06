@@ -36,6 +36,8 @@ import random
 
 from task_queue import input_text_queue, output_text_queue, gif_queue, image_queue, movement_queue, stt_queue
 from config import cloud_config
+from googleapiclient.discovery import build
+import yt_dlp
 
 
 # Game text for the rock-paper-scissors game
@@ -219,6 +221,11 @@ def stt_task():
         elif "game" in user_input or "play" in user_input:
             #movement_queue.put("trot")
             output_text_queue.put(GAME_TEXT)
+        elif "music" in user_input or "song" in user_input:
+            songs = ["Shape of You", "I Knew You Were Trouble", "Cruel Summer"]
+            song_name = random.choice(songs)
+            music(song_name)
+            output_text_queue.put(f"Finished playing {song_name}.")
         elif lang:
             logging.debug(f"switch language: {lang}")
             user_input += f", Please reply in {lang}."
@@ -231,6 +238,59 @@ def stt_task():
         time.sleep(0.5)
         google_api.stop_stt(stream)
         time.sleep(0.5)
+        
+def music(song_name):
+    """
+    Search, download, and play a song from YouTube in WAV format.
+
+    Parameters:
+    - song_name (str): The name of the song to play.
+    """
+    print(f"Searching for the video for {song_name}...")
+    youtube = build('youtube', 'v3', developerKey= "AIzaSyBlA19C3VcQeu0znvjiVjQ3EcV-BQ3F3OY")
+    request = youtube.search().list(
+        q=song_name,
+        part='id,snippet',
+        maxResults=1
+    )
+    response = request.execute()
+
+    if 'items' in response and len(response['items']) > 0:
+        video_id = response['items'][0]['id']['videoId']
+        video_url = f"https://www.youtube.com/watch?v={video_id}"
+    else:
+        raise Exception("No related videos found")
+
+    output_file = '/home/ubuntu/mini_pupper_bsp/demos/YTB.wav'
+
+    print("Downloading audio...")
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'outtmpl': output_file,
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'wav',  # Change audio format to wav
+            'preferredquality': '192',
+            'nopostoverwrites': False,  # Ensure no filename conflicts
+        }],
+    }
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([video_url])
+
+    print("Audio download complete.")
+
+    if not os.path.exists(output_file):
+        output_file += ".wav"
+
+    volume = 0.5 
+    print("Playing audio...")
+    data, fs = sf.read(output_file, dtype='float32')  # Read the audio file
+    data = data * volume  # Adjust the volume
+    data = np.clip(data, -1.0, 1.0)  # Ensure data is within the valid range
+    sd.play(data, fs)
+    sd.wait()
+    print("Audio playback complete.")
 
 
 def gemini_task():
