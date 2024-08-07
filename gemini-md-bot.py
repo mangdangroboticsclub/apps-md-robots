@@ -209,13 +209,13 @@ def stt_task():
             stt_queue.put(True)
         elif "sit" == move_key or "action" == move_key:
             movement_queue.put(move_key)
-            output_text_queue.put("OK, my master.")
+            output_text_queue.put("OK, my Gaudian.")
         elif "walk" in user_input or "come" in user_input or "go" in user_input:
             movement_queue.put("move forwards")
-            output_text_queue.put("My master, here I come.")
+            output_text_queue.put("My Gaudian, here I come.")
         elif move_key:
             movement_queue.put(move_key)
-            output_text_queue.put(f"OK, my master, {move_key} immediatly.")
+            output_text_queue.put(f"OK, my Gaudian, {move_key} immediatly.")
         elif "game" in user_input or "play" in user_input:
             #movement_queue.put("trot")
             output_text_queue.put(GAME_TEXT)
