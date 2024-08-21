@@ -24,7 +24,7 @@ The new branch for Mini Pupper will be added soon, please click the picture and 
 
 Please make sure Mini Pupper 2 can walk first. 
 
-- Download and flash the [pre-built base image file](https://drive.google.com/file/d/18hR9YZVKdxlTCJZxj67LTTbRUu9M8vbU/view?usp=sharing), or 
+- Download and flash the [pre-built base image file (like v2_stanford*.img) ](https://drive.google.com/drive/folders/1ZF4vulHbXvVF4RPWWGxEe7rxcJ9LyeEu?usp=sharing), or 
 - Build the base environment by yourself. 
 
 Step 1: Install the [BSP repo](https://github.com/mangdangroboticsclub/mini_pupper_2_bsp)
