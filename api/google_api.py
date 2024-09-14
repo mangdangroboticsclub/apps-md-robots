@@ -1,5 +1,5 @@
 #
-# Copyright 2024 MangDang (www.mangdang.net) 
+# Copyright 2024 MangDang (www.mangdang.net)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import google.auth
 from PIL import Image
 from vertexai.preview.generative_models import Image as VertexImage
 from langchain_google_vertexai import ChatVertexAI
-from langchain_core.messages import HumanMessage, SystemMessage 
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.memory import ConversationBufferMemory
 from langchain.chains.conversation.base import ConversationChain
 from langchain.prompts import (
@@ -52,6 +52,10 @@ from google.cloud import texttospeech
 from io import BytesIO
 import asyncio
 
+
+# language code and name, default is en-US
+language_code = "en-US"
+language_name = "en-US-Standard-E"
 
 def init_credentials(key_json_path):
     """
@@ -85,7 +89,7 @@ def create_conversation():
             SystemMessagePromptTemplate.from_template(
                 """
                 You are a small female robo puppy, your name is Puppy. You will be a helpful AI assistant.
-                Your LLM api is connected to STT and several TTS models so you are able to hear the user 
+                Your LLM api is connected to STT and several TTS models so you are able to hear the user
                 and change your voice and accents whenever asked.
                 After being asked to change voice, the TTS handles the process, so ALWAYS assume the voice has changed, so asnwer appropriately.
                 ---
@@ -167,6 +171,21 @@ def ai_image_response(llm, image, text):
     logging.debug(f"ai_image_response end, delay = {ms_end - ms_start}ms")
     return result
 
+def set_language(code, name):
+    """
+    set the default languange for stt and tts.
+
+    Parameters:
+    - code (String): The language code.
+    - name (String): The language name.
+
+    Reference: https://cloud.google.com/text-to-speech/docs/voices
+    """
+
+    global language_code, language_name
+    language_code = code
+    language_name = name
+
 def init_pyaudio():
     """
     Initializes the PyAudio library for handling audio streams.
@@ -188,9 +207,9 @@ def init_speech_to_text():
     return speech_client
 
 # Note:  Very important!!!
-# After you called this function start_stt(), You need to call stop_stt() some time later, not immediately because it will crash 
+# After you called this function start_speech_to_text(), You need to call stop_speech_to_text() some time later, not immediately because it will crash
 # Function to detect voice and transribe speech
-def start_stt(speech_client, py_audio):
+def start_speech_to_text(speech_client, py_audio):
     """
     Starts the speech-to-text process to transcribe audio input to text.
 
@@ -204,7 +223,7 @@ def start_stt(speech_client, py_audio):
     """
 
     RATE = 48000
-    CHUNK = int(48000 / 10)
+    CHUNK = int(RATE / 10)
 
     def audio_generator(stream, chunk):
         try:
@@ -216,26 +235,28 @@ def start_stt(speech_client, py_audio):
                 yield data
         except Exception as e:
             # Handle any exceptions that may occur while reading from the stream
-            print(f"Error reading from audio stream: {e}")
+            logging.error(f"Error reading from audio stream: {e}")
             # You may want to close the stream or return a signal to indicate an error
             yield None
 
 
     stream = py_audio.open(format=pyaudio.paInt16,
-                    channels=1,
+                    channels=2,
                     rate=RATE,
                     input=True,
                     frames_per_buffer=CHUNK)
 
-    requests = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator(stream, CHUNK))
+    requests = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator(stream, CHUNK) if content)
 
     streaming_config = speech.StreamingRecognitionConfig(
         config=speech.RecognitionConfig(
             encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
             sample_rate_hertz=RATE,
-            language_code="en-US",
+            language_code=language_code,
             use_enhanced=True,
             model="phone_call",
+            audio_channel_count=2,
+            enable_separate_recognition_per_channel=True,
         ),
         interim_results=True
     )
@@ -259,16 +280,20 @@ def start_stt(speech_client, py_audio):
     return user_input, stream
 
 # Note: Very Important!!!!
-# You need to call stop_stt() some time after start_stt(), not immediately because it will crash 
-def stop_stt(stream):
+# You need to call stop_speech_to_text() some time after start_speech_to_text(), not immediately because it will crash
+def stop_speech_to_text(stream):
     """
     Stops the speech-to-text stream to prevent potential crashes.
 
     Parameters:
     - stream: The audio stream object to be stopped and closed.
     """
-    stream.stop_stream()
-    stream.close()
+    try:
+        stream.stop_stream()
+        stream.close()
+    except Exception as e:
+        logging.error(f"stop_speech_to_text error: {e}")
+        pass
 
 
 def init_text_to_speech():
@@ -284,7 +309,7 @@ def init_text_to_speech():
     tts_client = texttospeech.TextToSpeechClient()
 
     # Create voice instance
-    voice = texttospeech.VoiceSelectionParams(language_code="en-US", name="en-US-Standard-E")
+    voice = texttospeech.VoiceSelectionParams(language_code=language_code, name=language_name)
 
     # Create audio configuration instance
     audio_config = texttospeech.AudioConfig(
@@ -316,8 +341,21 @@ def text_to_speech(text, tts_client, voice, audio_config):
     ms_end = int(time.time() * 1000)
     logging.debug(f"google tts end, delay = {ms_end - ms_start}ms")
 
-    sd.play(audio_data, 24000)
-    sd.wait()
+
+    logging.debug(sd.default.device)
+    # specfiy the innner audio play device "bcm2835 Headphones" on mini pupper
+    try:
+        audio_device = sd.query_devices("headphone")
+        logging.info(audio_device)
+        sd.default.device[1] = audio_device.get("index", sd.default.device[1])
+        logging.debug(sd.default.device)
+    except Exception as e:
+        logging.error(e)
+    try:
+        sd.play(audio_data, 24000)
+        sd.wait()
+    except Exception as e:
+        logging.error(f"tts play error:{e}")
 
 
 def main():
@@ -325,6 +363,20 @@ def main():
         format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(funcName)s:%(lineno)d] - %(message)s',
         level=logging.DEBUG
     )
+
+    current_file_path = os.path.abspath(__file__)
+    os.chdir(os.path.dirname(current_file_path))
+    logging.debug(f"init chdir: {os.path.dirname(current_file_path)}")
+
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path='../.env')
+    api_path = os.environ.get('API_KEY_PATH', '')
+    if os.path.exists(api_path):
+        init_credentials(api_path)
+
+    lang_code = os.environ.get('LANGUAGE_CODE', language_code)
+    lang_name = os.environ.get('LANGUAGE_NAME', language_name)
+    set_language(lang_code, lang_name)
 
     py_audio = init_pyaudio()
     speech_client = init_speech_to_text()
@@ -366,14 +418,14 @@ def main():
                     logging.debug(f"text prompt: {text_prompt}")
                     response = ai_image_response(multi_model, image=image, text=text_prompt)
         elif "stt" == first_word:
-            input_text, stream = start_stt(speech_client, py_audio)
+            input_text, stream = start_speech_to_text(speech_client, py_audio)
 
             if not input_text:
                 logging.debug("No speech detected!")
             else:
                 logging.debug(f"input text: {input_text}")
             time.sleep(1)
-            stop_stt(stream)
+            stop_speech_to_text(stream)
 
         elif "tts" == first_word:
             input_text = ' '.join(inputs[1:])

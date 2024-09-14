@@ -1,5 +1,5 @@
 #
-# Copyright 2024 MangDang (www.mangdang.net) 
+# Copyright 2024 MangDang (www.mangdang.net)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 # Description: This script imports necessary modules and sets up tasks for an interactive AI system.
 # It handles speech-to-text, text-to-speech, AI interactions, image and GIF display, and physical movement commands using threading for concurrent operation.
 #
-from api import media_api, google_api, move_api
 
 import logging
 import os
@@ -34,9 +33,13 @@ from google.cloud import texttospeech
 from langchain_google_vertexai import ChatVertexAI
 import random
 
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from task_queue import input_text_queue, output_text_queue, gif_queue, image_queue, movement_queue, stt_queue
-from config import cloud_config
+from api import media_api, google_api, move_api, shell_api
 
+
+RES_DIR = "cartoons"
 
 # Game text for the rock-paper-scissors game
 GAME_TEXT = "Let's play! Rock! Paper! Scissor! Shoot!"
@@ -118,6 +121,46 @@ def get_move_cmd(input_text, command_dict):
             return command_key
     return None
 
+def close_ai():
+    global ai_on
+    ai_on = False
+    stt_queue.put(True)
+    image = Image.open(f"{RES_DIR}/logo2.png")
+    image_queue.put(image)
+
+def open_ai():
+    global ai_on
+    ai_on = True
+    stt_queue.put(True)
+    image = Image.open(f"{RES_DIR}/hello.png")
+    image_queue.put(image)
+    output_text_queue.put("OK, my guardian.")
+
+def reboot():
+    command = "sudo reboot"
+    shell_api.execute_command(command)
+
+def power_off():
+    command = "sudo poweroff"
+    shell_api.execute_command(command)
+
+sys_cmds_functions = {
+        "shut up": close_ai,
+        "speak please": open_ai,
+        "reboot": reboot,
+        "power off": power_off,
+        }
+
+def get_sys_cmd(input_text, command_dict):
+    normalized_text = re.sub(r'[^\w\s]', '', input_text.lower())
+
+    for command_key in command_dict.keys():
+        if normalized_text == command_key.lower():
+            return command_key, command_dict[command_key]
+
+    return None, None
+
+
 def cut_text_by_last_period(text, max_words_before_period=15):
     """
     Cut the text by the last period within a specified number of words.
@@ -195,27 +238,40 @@ def stt_task():
             logging.info(f"should_stt: {should_stt}")
             stt_queue.task_done()
 
-        if not should_stt or not ai_on:
+        if not should_stt:
             continue
         logging.debug("stt task start loop, listening ... ...")
-        user_input, stream = google_api.start_stt(speech_client, py_audio)
+        user_input, stream = google_api.start_speech_to_text(speech_client, py_audio)
         logging.debug(f"voice input: {user_input}")
 
         move_key = get_move_cmd(user_input, move_cmd_functions)
+        sys_cmd_key, sys_cmd_func = get_sys_cmd(user_input, sys_cmds_functions)
         global cur_voice
-        lang, cur_voice = get_voice(user_input)
+        if ai_on:
+            lang, cur_voice = get_voice(user_input)
+
         if not user_input:
             logging.debug(f"no input!")
             stt_queue.put(True)
+        elif sys_cmd_key:
+            logging.debug(f"sys cmd: {sys_cmd_key}")
+            sys_cmd_func()
         elif "sit" == move_key or "action" == move_key:
             movement_queue.put(move_key)
-            output_text_queue.put("OK, my Gaudian.")
+            output_text_queue.put("OK, my guardian.")
         elif "walk" in user_input or "come" in user_input or "go" in user_input:
             movement_queue.put("move forwards")
-            output_text_queue.put("My Gaudian, here I come.")
+            output_text_queue.put("My guardian, here I come.")
         elif move_key:
             movement_queue.put(move_key)
-            output_text_queue.put(f"OK, my Gaudian, {move_key} immediatly.")
+            output_text_queue.put(f"OK, my guardian, {move_key} immediatly.")
+        elif not ai_on:
+            logging.info(f"ai is not on, do not use gemini")
+            stt_queue.put(True)
+            time.sleep(0.5)
+            google_api.stop_speech_to_text(stream)
+            time.sleep(0.5)
+            continue
         elif "game" in user_input or "play" in user_input:
             #movement_queue.put("trot")
             output_text_queue.put(GAME_TEXT)
@@ -229,7 +285,7 @@ def stt_task():
             input_text_queue.put(user_input)
             stt_queue.put(False)
         time.sleep(0.5)
-        google_api.stop_stt(stream)
+        google_api.stop_speech_to_text(stream)
         time.sleep(0.5)
 
 
@@ -239,12 +295,12 @@ def gemini_task():
     """
     logging.debug("gemini task start.")
     conversation = google_api.create_conversation()
-    init_input =  "From here on, always answer as if a human being is saying things off the top of his head which is always concise, relevant and contains a good conversational tone. so you will only and only answer in one breathe responses"
+    init_input =  "From here on, always answer as if a human being is saying things off the top of his head which is always concise, relevant and contains a good conversational tone. so you will only and only answer in one breathe responses. If the input contains a language other than English, for example, language A, please answer the question in language A."
     response = google_api.ai_text_response(conversation, init_input)
     logging.debug(f"init llm and first response: {response}")
 
     multi_model = ChatVertexAI(model="gemini-pro-vision")
-    with Image.open("cartoons/Trot.jpg") as image:
+    with Image.open(f"{RES_DIR}/Trot.jpg") as image:
         logging.debug(f"Opened image: 320p")
         if image is None:
             logging.debug("No image captured!")
@@ -253,7 +309,7 @@ def gemini_task():
             response = google_api.ai_image_response(multi_model, image=image, text=text_prompt)
     logging.debug(f"init vision model and first response: {response}")
     stt_queue.put(True)
-    image = Image.open("cartoons/hello.png")
+    image = Image.open(f"{RES_DIR}/hello.png")
     image_queue.put(image)
 
     while True:
@@ -270,18 +326,20 @@ def gemini_task():
         if not user_input:
             logging.debug(f"no input!")
 
-        elif "who" in user_input or "xpression" in user_input:
+        elif "photo" in user_input or "picture" in user_input or "xpression" in user_input:
             ms_start = int(time.time() * 1000)
             logging.debug(f"detect pic start!")
             image = media_api.take_photo()
             logging.debug(f"take photo finish!")
 
-            image = media_api.resize_image_to_width(image, 320)
-            logging.debug(f"resize photo finish!")
+            if image:
+                image = media_api.resize_image_to_width(image, 320)
+                logging.debug(f"resize photo finish!")
+                response = google_api.ai_image_response(multi_model, image=image, text=user_input)
+                image_queue.put(image)
+            else:
+                response = google_api.ai_text_response(conversation, user_input)
 
-            response = google_api.ai_image_response(multi_model, image=image, text=user_input)
-            #media_api.show_image(image)
-            image_queue.put(image)
             logging.debug(f"detect pic end!")
             ms_end = int(time.time() * 1000)
             logging.debug(f"ai_response end, delay = {ms_end - ms_start}ms")
@@ -300,7 +358,7 @@ def gemini_task():
             random.seed(int(time.time()))
             puppy_gesture = random.choice(gestures)
             logging.debug(f"puppy_gesture is: {puppy_gesture}")
-            puppy_image = Image.open(f"cartoons/{puppy_gesture}.jpg")
+            puppy_image = Image.open(f"f{RES_DIR}/{puppy_gesture}.jpg")
             image_queue.put(puppy_image)
 
             human_gesture = google_api.ai_image_response(multi_model, image=human_image, text=user_input)
@@ -311,11 +369,11 @@ def gemini_task():
             result = "You win!" if win_conditions.get(human_gesture) == puppy_gesture else ("It's a tie!" if human_gesture == puppy_gesture else "You lose!")
             response = result
             output_text_queue.put(response)
-            image = Image.open("cartoons/logo.png")
+            image = Image.open(f"{RES_DIR}/logo.png")
             image_queue.put(image)
         else:
             logging.debug("text response start!")
-            gif_queue.put(True)
+            #gif_queue.put(True)
             response = google_api.ai_text_response(conversation, user_input)
             logging.debug("text response end: {response}")
             output_text_queue.put(response)
@@ -329,6 +387,9 @@ def tts_task():
     logging.debug("tts task start.")
     os.system("amixer -c 0 sset 'Headphone' 100%")
     tts_client, voice, audio_config = google_api.init_text_to_speech()
+    global voice0
+    voice0 = voice
+    cur_voice = voice
     logging.debug("init tts end.")
     while True:
         logging.debug("tts wait for gemini responese text... ...")
@@ -337,6 +398,7 @@ def tts_task():
         output_text_queue.task_done()
         out_text = remove_emojis(out_text).replace('*', '')
         if not out_text or not ai_on:
+            stt_queue.put(True)
             continue
 
         stt_queue.put(False)
@@ -355,7 +417,7 @@ def gif_task():
     Task for handling GIF display.
     """
     logging.debug("gif task start.")
-    gif_player = media_api.init_gifplayer("cartoons/")
+    gif_player = media_api.init_gifplayer(f"{RES_DIR}/")
     logging.debug("init gif end.")
     while True:
         logging.debug("wait for gif show... ...")
@@ -370,7 +432,6 @@ def image_task():
     Task for handling image display.
     """
     logging.debug("image task start.")
-    #media_api.show_image_from_path("cartoons/hello.png")
     logging.debug("init image end.")
     while True:
         logging.debug("wait for image show... ...")
@@ -397,64 +458,59 @@ def move_task():
         time.sleep(1)
 
 def main():
-    # Setup logging configuration for debugging purposes
+    # Setup logging
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(funcName)s:%(lineno)d] - %(message)s',
         level=logging.DEBUG
     )
-    
-    # Change the current working directory to where this script resides
     current_file_path = os.path.abspath(__file__)
-    os.chdir(os.path.dirname(current_file_path))
-    logging.debug(f"init chdir: {os.path.dirname(current_file_path)}")
+    current_dir = os.path.dirname(current_file_path)
+    #parent_dir = os.path.dirname(current_dir)
+    os.chdir(os.path.dirname(current_dir))
+    logging.debug(f"init chdir: {current_dir}")
 
-    # Assuming cloud_config is defined elsewhere, retrieve API key path
-    api_path = str(cloud_config['api_key_path'])
-    
-    # Check if the API key file exists
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path='./.env')
+    api_path = os.environ.get('API_KEY_PATH', '')
+    logging.debug(f"api key path: {api_path}")
     if os.path.exists(api_path):
         logging.debug("init credentials start.")
-        
-        # Initialize Google API credentials using the provided path
         google_api.init_credentials(api_path)
-        
         logging.debug("init credentials end.")
-    else: # or before running this .py file, export GOOGLE_APPLICATION_CREDENTIALS=/<your own  api key path>
+    else:
         logging.debug("credentials file not exist.")
 
-    # Start a thread for speech-to-text task
+    lang_code = os.environ.get('LANGUAGE_CODE', 'en-US')
+    lang_name = os.environ.get('LANGUAGE_NAME', 'en-US-Standard-E')
+    google_api.set_language(lang_code, lang_name)
+
     stt_thread = threading.Thread(target=stt_task)
     stt_thread.start()
     logging.debug("stt thread start.")
 
-    # Start a thread for gemini task
     gemini_thread = threading.Thread(target=gemini_task)
     gemini_thread.start()
     logging.debug("gemini thread start.")
 
-    # Start a thread for text-to-speech task
     tts_thread = threading.Thread(target=tts_task)
     tts_thread.start()
 
-    # Start a thread for handling GIFs
     gif_thread = threading.Thread(target=gif_task)
     gif_thread.start()
 
-    # Start a thread for handling images
     image_thread = threading.Thread(target=image_task)
     image_thread.start()
 
-    # Start a thread for moving tasks (assuming robotics or physical movements)
     move_thread = threading.Thread(target=move_task)
     move_thread.start()
 
-    # Join all threads to wait for them to complete
     stt_thread.join()
     gemini_thread.join()
     tts_thread.join()
     gif_thread.join()
     image_thread.join()
     move_thread.join()
+
 
 if __name__ == '__main__':
     main()

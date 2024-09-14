@@ -1,0 +1,14 @@
+[Unit]
+Description=Robot ai service
+Requires=robot.service
+After=robot.service
+
+[Service]
+ExecStart=/usr/bin/python3 /home/ubuntu/apps-md-robots/ai_app/ai_app.py
+KillSignal=2
+TimeoutStopSec=10
+User=ubuntu
+Group=ubuntu
+
+[Install]
+WantedBy=multi-user.target

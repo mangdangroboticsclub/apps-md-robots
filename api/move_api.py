@@ -1,5 +1,5 @@
 #
-# Copyright 2024 MangDang (www.mangdang.net) 
+# Copyright 2024 MangDang (www.mangdang.net)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Description: This script is designed to control a robot by sending various commands through UDP communication to simulate 
+# Description: This script is designed to control a robot by sending various commands through UDP communication to simulate
 # joystick inputs. It includes functions for different robot movements and an interactive command-line interface to issue these commands.
 #
 # Movement Test Method: Type the following commands and press enter: 'init', 'lower', 'raise', 'left roll', 'right roll', 'trot',
 # 'trot1', 'squat', 'forward', 'backward', 'left', 'right', 'look up', 'look down', 'loow left', 'look upper left', 'look lower left',
 # 'look right', 'look upper right', 'look lower right'
-#                                                               
+#
 
 import logging
 import os
@@ -242,7 +242,7 @@ def move_left(duration=2):
     """
     msg_trot_press = {**_MSG, "R1": True}
     msg_trot_release = {**_MSG, "R1": False}
-    start_msg = {**_MSG, "lx": -1.0}
+    start_msg = {**_MSG, "lx": -0.5}
     stop_msg = {**_MSG, "ly": 0.0}
     msgs = [msg_trot_press, msg_trot_release]
     num = int(duration / UPDATE_INTERVAL)
@@ -262,7 +262,7 @@ def move_right(duration=2):
     """
     msg_trot_press = {**_MSG, "R1": True}
     msg_trot_release = {**_MSG, "R1": False}
-    start_msg = {**_MSG, "lx": 1.0}
+    start_msg = {**_MSG, "lx": 0.5}
     stop_msg = {**_MSG, "ly": 0.0}
     msgs = [msg_trot_press, msg_trot_release]
     num = int(duration / UPDATE_INTERVAL)
@@ -312,7 +312,7 @@ def look_left(duration=2):
     Parameters:
     - duration (float): The duration of the movement.
     """
-    start_msg = {**_MSG, "rx": -1.0}
+    start_msg = {**_MSG, "rx": -0.3}
     stop_msg = {**_MSG, "rx": 0.0}
     num = int(duration / UPDATE_INTERVAL)
     reduction_count = num // 2
@@ -360,7 +360,7 @@ def look_right(duration=2):
     Parameters:
     - duration (float): The duration of the movement.
     """
-    start_msg = {**_MSG, "rx": 1.0}
+    start_msg = {**_MSG, "rx": 0.3}
     stop_msg = {**_MSG, "rx": 0.0}
     num = int(duration / UPDATE_INTERVAL)
     reduction_count = num // 2

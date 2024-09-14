@@ -1,5 +1,5 @@
 #
-# Copyright 2024 MangDang (www.mangdang.net) 
+# Copyright 2024 MangDang (www.mangdang.net)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ def take_photo():
     - image (PIL.Image): The captured image or None if the webcam is not accessible.
     """
     cap = cv2.VideoCapture(0)
-    
+
     if not cap.isOpened():
         return None
 
@@ -160,13 +160,13 @@ def main():
 
     while True:
         user_input = input("Enter function apis --- 'photo'/'resize' or 'exit' to quit: ").strip().lower()
-        
+
         if user_input == 'exit':
            logging.info("Exit!")
            break
         elif user_input == 'photo':
             image = take_photo()
-            
+
             if not image:
                 logging.info("No image!")
             else:
