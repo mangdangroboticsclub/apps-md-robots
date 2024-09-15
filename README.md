@@ -40,33 +40,34 @@ For the video guide, please click the picture and refer to the demo video.
 [![Installation Guide](https://img.youtube.com/vi/1AkhJi2o8rM/0.jpg)](https://www.youtube.com/watch?v=1AkhJi2o8rM)
 
 
-Clone this repo.
+Clone this repo, and install denpendency libs.
 ```
 cd ~
-git clone https://github.com/mangdangroboticsclub/gemini-md-bot
-cd gemini-md-bot
-./install.sh
+git clone https://github.com/mangdangroboticsclub/apps-md-robots
+cd apps-md-robots
+sudo apt-get install -y python3-pyaudio
+sudo pip install -r requirements.txt
 
 ```
 
 
-Set your google cloud API key in env.example file and then enjoy.
- 
-```
-# set your key in env.example, then 
-cp env.example .env
-```
-
-Run
-=======
-Set your Google Cloud API key in .env file and then enjoy.
+Set your google cloud API key in env.example file and then start.
  
 ```
 cp env.example .env
+
+#and then edit .env file, set your key path in .env file, like: API_KEY_PATH=/home/ubuntu/xxxx.josn 
+vim .env
+
+
+
 ```
 
-Edit .env file and set your key path, then you can try using the gemini-md-bot
+## Run
+run app demos, eg. ai_apps
+ 
+```
+cd ai_apps/
+python ai_app.py
+```
 
-```
-python gemini-md-bot.py
-```
