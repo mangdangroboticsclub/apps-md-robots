@@ -134,7 +134,7 @@ def open_ai():
     stt_queue.put(True)
     image = Image.open(f"{RES_DIR}/hello.png")
     image_queue.put(image)
-    output_text_queue.put("OK, my guardian.")
+    output_text_queue.put("OK, my friend.")
 
 def reboot():
     command = "sudo reboot"
@@ -258,13 +258,13 @@ def stt_task():
             sys_cmd_func()
         elif "sit" == move_key or "action" == move_key:
             movement_queue.put(move_key)
-            output_text_queue.put("OK, my guardian.")
+            output_text_queue.put("OK, my friend.")
         elif "walk" in user_input or "come" in user_input or "go" in user_input:
             movement_queue.put("move forwards")
-            output_text_queue.put("My guardian, here I come.")
+            output_text_queue.put("My friend, here I come.")
         elif move_key:
             movement_queue.put(move_key)
-            output_text_queue.put(f"OK, my guardian, {move_key} immediatly.")
+            output_text_queue.put(f"OK, my friend, {move_key} immediatly.")
         elif not ai_on:
             logging.info(f"ai is not on, do not use gemini")
             stt_queue.put(True)
