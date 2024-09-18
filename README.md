@@ -45,13 +45,11 @@ Clone this repo, and install denpendency libs.
 cd ~
 git clone https://github.com/mangdangroboticsclub/apps-md-robots
 cd apps-md-robots
-sudo apt-get install -y python3-pyaudio
-sudo pip install -r requirements.txt
 
 ```
 
 
-Set your google cloud API key in env.example file and then start.
+Set your google cloud API key in .env file .
  
 ```
 cp env.example .env
@@ -64,10 +62,12 @@ vim .env
 ```
 
 ## Run
-run app demos, eg. ai_apps
+run app demos, eg. ai-app
  
 ```
-cd ai_apps/
+cd ai-app/
+sudo apt-get install -y python3-pyaudio
+sudo pip install -r requirements.txt
 python ai_app.py
 ```
 

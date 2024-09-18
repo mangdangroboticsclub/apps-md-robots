@@ -4,7 +4,7 @@ Requires=robot.service
 After=robot.service
 
 [Service]
-ExecStart=/usr/bin/python3 /home/ubuntu/apps-md-robots/ai_app/ai_app.py
+ExecStart=/usr/bin/python3 /home/ubuntu/apps-md-robots/ai-app/ai_app.py
 KillSignal=2
 TimeoutStopSec=10
 User=ubuntu
