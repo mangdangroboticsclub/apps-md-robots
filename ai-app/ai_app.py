@@ -358,7 +358,7 @@ def gemini_task():
             random.seed(int(time.time()))
             puppy_gesture = random.choice(gestures)
             logging.debug(f"puppy_gesture is: {puppy_gesture}")
-            puppy_image = Image.open(f"f{RES_DIR}/{puppy_gesture}.jpg")
+            puppy_image = Image.open(f"{RES_DIR}/{puppy_gesture}.jpg")
             image_queue.put(puppy_image)
 
             human_gesture = google_api.ai_image_response(multi_model, image=human_image, text=user_input)
