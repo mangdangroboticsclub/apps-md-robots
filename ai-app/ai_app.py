@@ -387,7 +387,7 @@ def tts_task():
     logging.debug("tts task start.")
     os.system("amixer -c 0 sset 'Headphone' 100%")
     tts_client, voice, audio_config = google_api.init_text_to_speech()
-    global voice0
+    global voice0, cur_voice
     voice0 = voice
     cur_voice = voice
     logging.debug("init tts end.")
