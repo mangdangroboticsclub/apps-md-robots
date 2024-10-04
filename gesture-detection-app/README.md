@@ -10,7 +10,7 @@ pip install -r requirements.txt
 ```
 
 ### Run The App
-After the App starts running, the user should point the index finger within the frame of the camera. This will prompt the mini pupper to look accordingly.
+After the App starts running, the user should point the index finger within the frame of the camera. This will prompt the mini pupper to look accordingly. Make sure the movement of the pupper is already initialized. If it is not then run this line of code in the command line ```python ../api/move_api.py --api init```
 ```
 python gesture_app.py
 ```
