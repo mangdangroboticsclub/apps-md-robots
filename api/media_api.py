@@ -27,8 +27,9 @@ import cv2
 import numpy as np
 from PIL import Image
 import sys
+import os
 
-sys.path.append("..")
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from MangDang.LCD.ST7789 import ST7789
 from api.gif import AnimatedGif
 
