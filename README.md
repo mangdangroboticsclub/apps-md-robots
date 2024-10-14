@@ -1,73 +1,108 @@
-# MD Robot Starter Kits AI Demos
-[MangDang](https://www.mangdang.net/) Online channel: [Discord](https://discord.gg/xJdt3dHBVw), [FaceBook](https://www.facebook.com/groups/716473723088464), [YouTube](https://www.youtube.com/channel/UCqHWYGXmnoO7VWHmENje3ug/featured), [Twitter](https://twitter.com/LeggedRobot)
+# AI Application Demos of MD Robot Starter Kits
+[MangDang](https://mangdang.store/) Online channel: [Discord](https://discord.gg/xJdt3dHBVw), [FaceBook](https://www.facebook.com/groups/716473723088464), [YouTube](https://www.youtube.com/channel/UCqHWYGXmnoO7VWHmENje3ug/featured), [Twitter](https://twitter.com/LeggedRobot)
 
 MD Robot Starter Kits: Unlock your AI Dream Job.
 Make robotics easier for schools, homeschool families, enthusiasts and beyond.
 
-- Generative AI: Support ChatGPT, Gemini and Claude
+- Generative AI: Support ChatGPT, Gemini, and Claude
 - ROS: support ROS2(Humble) SLAM & Navigation robot dog at low-cost price
 - OpenCV: support OpenCV official OAK-D-Lite 3D camera module and single MIPI camera
 - Open-source: DIY and customize what you want.
-- Raspberry Pi: it’s super expandable, endorsed by Raspberry Pi.
+- Raspberry Pi: It’s super expandable and endorsed by Raspberry Pi.
 
-## Overview
+# Overview
 
-The AI applications can be run on MD legged Robot Kits. 
-The default branch works on Mini Pupper2(G), please click the picture and refer to the demo video.
+The AI applications can be run on MD Robot Starter Kits, including Mini Pupper and Mini Pupper 2.
+Please click the picture and refer to the demo video.
 
-[![Run on MD-Puppy1](https://img.youtube.com/vi/mIDuIZCevIg/0.jpg)](https://www.youtube.com/watch?v=mIDuIZCevIg)
-
-The new branch for Mini Pupper will be added soon, please click the picture and refer to the demo video.
-
-[![Run on MD-Puppy1](https://img.youtube.com/vi/bvH-lA1IHig/0.jpg)](https://www.youtube.com/watch?v=bvH-lA1IHig)
-
-## Preparation
-
-Please make sure Mini Pupper 2(G) can walk first. 
-
-- Download and flash the [pre-built base image file (like v2_stanford*.img) ](https://drive.google.com/drive/folders/1ZF4vulHbXvVF4RPWWGxEe7rxcJ9LyeEu?usp=sharing), or 
-- Build the base environment by yourself. 
-
-Step 1: Install the [BSP repo](https://github.com/mangdangroboticsclub/mini_pupper_2_bsp)
-
-Step 2: Install the [quadruped repo](https://github.com/mangdangroboticsclub/StanfordQuadruped )
+[![Run on Mini Pupper 2](https://img.youtube.com/vi/mIDuIZCevIg/0.jpg)](https://www.youtube.com/watch?v=mIDuIZCevIg)
 
 
-## Install
+[![Run on Mini Pupper 2](https://img.youtube.com/vi/bvH-lA1IHig/0.jpg)](https://www.youtube.com/watch?v=bvH-lA1IHig)
+
+# Software Installation
+
+## Solution 1: Flash the pre-built image
+
+You can download our pre-built images and try the AI functions quickly.
+- Step 1: Download the pre-built base image file(like * AI *.img),  [Mini Pupper 2](https://drive.google.com/drive/folders/1j3ip6XKhgUHC9gO1blBm4xIjogaUM9yk?usp=sharing) or [Mini Pupper 1](https://drive.google.com/drive/folders/1aSKxSVc2tKQPeyAFTI9EaTHUAFZCWseo?usp=sharing)
+- Step 2: Flash the image into the SD card.
+
+## Solution 2: Build by Self
+
+### Preparation
+
+Please make sure Mini Pupper can walk first by the webserver. 
+
+- Install the BSP package, [Mini Pupper 2](https://github.com/mangdangroboticsclub/mini_pupper_2_bsp) or [Mini Pupper 1](https://github.com/mangdangroboticsclub/mini_pupper_bsp)
+
+- Install the [quadruped repo](https://github.com/mangdangroboticsclub/StanfordQuadruped )
+
+
+### Install
 
 For the video guide, please click the picture and refer to the demo video.
 
 [![Installation Guide](https://img.youtube.com/vi/1AkhJi2o8rM/0.jpg)](https://www.youtube.com/watch?v=1AkhJi2o8rM)
 
 
-Clone this repo, and install denpendency libs.
+Clone this repo.
 ```
 cd ~
 git clone https://github.com/mangdangroboticsclub/apps-md-robots
 cd apps-md-robots
-
 ```
 
-
-Set your google cloud API key in .env file .
+Copy your google cloud API key file to your robot and set your google cloud API key file location in .env file.
  
 ```
-cp env.example .env
+cd ~/apps-md-robots/
+# copy a template file to edit
+cp env.sample .env
 
-#and then edit .env file, set your key path in .env file, like: API_KEY_PATH=/home/ubuntu/xxxx.josn 
+# Edit .env file, set your key path in .env file,
+# like: API_KEY_PATH=/home/ubuntu/xxxx.josn 
 vim .env
-
-
-
 ```
 
-## Run
-run app demos, eg. ai-app
+Install the dependency libs.
+
+```
+cd ~/apps-md-robots/ai-app/
+sudo apt-get install -y python3-pyaudio
+sudo apt-get install -y libgl1
+sudo pip install -r requirements.txt 
+
+sudo cp ai.service /etc/systemd/system/ai.service
+```
+
+# Run
+
+## Run by Webserver
+run app demos.
+
+- Step 0: After your robot boot up and IP address shows on the robot LCD screen, point a web browser to x.x.x.x:8080 where x.x.x.x is the IP address of your mini_pupper, such as, 192.168.1.103:8080
+- Step 1: Select "Pupper" option in the left menu, click the “Activate/Deactive” button, robot LCD screen will change to a yellow face.
+- Step 1: Select "Settings" option in the left menu, click the “AI On” button, and wait about 10s after robot LCD screen shows "Hello World". 
+
+![WebServer](imgs/webServer.jpg)
+
+
+## Run by Command Line
+run app demos.
  
 ```
-cd ai-app/
-sudo apt-get install -y python3-pyaudio
-sudo pip install -r requirements.txt
-python ai_app.py
-```
+cd ~/apps-md-robots/api/
+# Go to movement mode
+python move_api.py --api init
 
+# Start the AI communication
+sudo systemctl start ai
+
+# Check the output when you debug
+sudo journalctl  -f -u ai
+
+# If you want to test the API, run the following command.
+cd ~/apps-md-robots/api/
+python move_api.py
+```
