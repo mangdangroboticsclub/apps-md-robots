@@ -82,6 +82,9 @@ sudo cp ai.service /etc/systemd/system/ai.service
 run app demos.
 
 - Step 0: After your robot boot up and IP address shows on the robot LCD screen, point a web browser to x.x.x.x:8080 where x.x.x.x is the IP address of your mini_pupper, such as, 192.168.1.103:8080
+
+![ipaddress](imgs/ipaddress.png)
+
 - Step 1: Select "Pupper" option in the left menu, click the “Activate/Deactive” button, robot LCD screen will change to a yellow face.
 - Step 1: Select "Settings" option in the left menu, click the “AI On” button, and wait about 10s after robot LCD screen shows "Hello World". 
 
@@ -89,6 +92,16 @@ run app demos.
 
 
 ## Run by Command Line
+
+connect the robot by ssh command.
+
+![ssh](imgs/ssh.png)
+
+```
+ssh ubuntu@x.x.x.x
+# the default password is mangdang
+```
+
 run app demos.
  
 ```
@@ -96,13 +109,30 @@ cd ~/apps-md-robots/api/
 # Go to movement mode
 python move_api.py --api init
 
-# Start the AI communication
+# Start the generative AI service
+# The display will show "Hello, World!" when it's ready.
 sudo systemctl start ai
+```
 
-# Check the output when you debug
+![HelloWorld](imgs/HelloWorld.png)
+
+
+You can check the output when you debug
+
+```
 sudo journalctl  -f -u ai
+```
 
-# If you want to test the API, run the following command.
+![GeminiFeedback](imgs/GeminiFeedback.png)
+
+
+If you want to DIY the key words to control the robot by voice, please revise line 262 or line 275.
+
+![keyWordofMovement](imgs/keyWordofMovement.png)
+
+
+If you want to test the API, run the following command.
+```
 cd ~/apps-md-robots/api/
 python move_api.py
 ```
