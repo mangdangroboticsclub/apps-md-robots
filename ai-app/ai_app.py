@@ -256,7 +256,10 @@ def stt_task():
         elif sys_cmd_key:
             logging.debug(f"sys cmd: {sys_cmd_key}")
             sys_cmd_func()
-        elif "sit" == move_key or "action" == move_key:
+        elif "踊り" in user_input or "見上げ" in user_input:
+            movement_queue.put("look up")
+            output_text_queue.put("OK, my friend.")
+        elif "sit" == move_key or "action" == move_key :
             movement_queue.put(move_key)
             output_text_queue.put("OK, my friend.")
         elif "walk" in user_input or "come" in user_input or "go" in user_input:
@@ -272,7 +275,7 @@ def stt_task():
             google_api.stop_speech_to_text(stream)
             time.sleep(0.5)
             continue
-        elif "game" in user_input or "play" in user_input:
+        elif "game" in user_input or "play" in user_input or "じゃんけん" in user_input:
             #movement_queue.put("trot")
             output_text_queue.put(GAME_TEXT)
         elif lang:
@@ -326,7 +329,7 @@ def gemini_task():
         if not user_input:
             logging.debug(f"no input!")
 
-        elif "photo" in user_input or "picture" in user_input or "xpression" in user_input:
+        elif "photo" in user_input or "picture" in user_input or "xpression" in user_input or "写真" in user_input:
             ms_start = int(time.time() * 1000)
             logging.debug(f"detect pic start!")
             image = media_api.take_photo()
@@ -335,6 +338,7 @@ def gemini_task():
             if image:
                 image = media_api.resize_image_to_width(image, 320)
                 logging.debug(f"resize photo finish!")
+                #response = google_api.ai_image_response(multi_model, image=image, text="この写真を読んで俳句を作ってください。大喜利大会なのでそれも踏まえて考えてください。俳句の前には必ず「いい写真ですね。では一句。」とつけてください。")
                 response = google_api.ai_image_response(multi_model, image=image, text=user_input)
                 image_queue.put(image)
             else:
