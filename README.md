@@ -25,7 +25,7 @@ Please click the picture and refer to the demo video.
 ## Solution 1: Flash the pre-built image
 
 You can download our pre-built images and try the AI functions quickly.
-- Step 1: Download the pre-built base image file(like * AI *.img),  [Mini Pupper 2](https://drive.google.com/drive/folders/1j3ip6XKhgUHC9gO1blBm4xIjogaUM9yk?usp=sharing) or [Mini Pupper 1](https://drive.google.com/drive/folders/1aSKxSVc2tKQPeyAFTI9EaTHUAFZCWseo?usp=sharing)
+- Step 1: Download the pre-built base image file(like * AI *.img),  [Mini Pupper 2](https://drive.google.com/drive/folders/1_HNbIb2RDmHpwECjqiVlkylvU19BSfOh?usp=sharing) or [Mini Pupper 1](https://drive.google.com/drive/folders/1jJm_6qBIYGGp2dpZNm668D0eH1JpfCqn?usp=sharing)
 - Step 2: Flash the image into the SD card.
 
 ## Solution 2: Build by Self
