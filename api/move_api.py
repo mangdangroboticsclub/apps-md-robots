@@ -401,6 +401,73 @@ def look_rightlower(duration=2):
     msgs.extend(stop_msgs)
     send_msgs(msgs)
 
+def dance(duration=2):
+    """
+    Make the robot dance.
+
+    Parameters:
+    - duration (float): The duration of the movement.
+    """
+    start_msg = {**_MSG, "rx": -0.3}
+    stop_msg = {**_MSG, "rx": 0.0}
+    num = int(duration / UPDATE_INTERVAL)
+    reduction_count = num // 2
+    msgs = [start_msg] * (num - reduction_count)
+    stop_msgs = [stop_msg] * reduction_count
+    msgs.extend(stop_msgs)
+    send_msgs(msgs)
+
+    time.sleep(duration*1.5)
+ 
+    trot()
+    thread = threading.Thread(target=delay_trot, args=(duration,))
+    thread.start()
+
+    time.sleep(duration*1.5)
+
+    start_msg = {**_MSG, "dpady": 1}
+    stop_msg = {**_MSG, "dpady": -0.8}
+    num = int(duration / UPDATE_INTERVAL)
+    reduction_count = num // 2
+    msgs = [start_msg] * (num - reduction_count)
+    stop_msgs = [stop_msg] * reduction_count
+    msgs.extend(stop_msgs)
+    send_msgs(msgs)
+
+    time.sleep(duration*1.5)
+
+    start_msg = {**_MSG, "rx": 0.3}
+    stop_msg = {**_MSG, "rx": 0.0}
+    num = int(duration / UPDATE_INTERVAL)
+    reduction_count = num // 2
+    msgs = [start_msg] * (num - reduction_count)
+    stop_msgs = [stop_msg] * reduction_count
+    msgs.extend(stop_msgs)
+    send_msgs(msgs)
+
+    time.sleep(duration*1.5)
+
+    start_msg = {**_MSG, "ry": 1.0}
+    stop_msg = {**_MSG, "ry": 0.0}
+    num = int(duration / UPDATE_INTERVAL)
+    reduction_count = num // 2
+    msgs = [start_msg] * (num - reduction_count)
+    stop_msgs = [stop_msg] * reduction_count
+    msgs.extend(stop_msgs)
+    send_msgs(msgs)
+
+    time.sleep(duration*1.5)
+
+    start_msg = {**_MSG, "ry": -1.0}
+    stop_msg = {**_MSG, "ry": 0.0}
+    num = int(duration / UPDATE_INTERVAL)
+    reduction_count = num // 2
+    msgs = [start_msg] * (num - reduction_count)
+    stop_msgs = [stop_msg] * reduction_count
+    msgs.extend(stop_msgs)
+    send_msgs(msgs)
+
+
 import argparse
 async def main(args):
     # Setup logging
@@ -437,6 +504,7 @@ async def main(args):
         "look right": look_right,
         "look upper right": look_upperright,
         "look lower right": look_rightlower,
+        "dance": dance,
     }
     async_move_api_map = {
         #"trot": trot,

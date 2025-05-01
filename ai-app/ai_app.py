@@ -101,6 +101,7 @@ move_cmd_functions = {
                  "look right": move_api.look_right,
                  "look upper right": move_api.look_upperright,
                  "look lower right": move_api.look_rightlower,
+                 "dance": move_api.dance,
              }
 
 def get_move_cmd(input_text, command_dict):
@@ -256,13 +257,17 @@ def stt_task():
         elif sys_cmd_key:
             logging.debug(f"sys cmd: {sys_cmd_key}")
             sys_cmd_func()
-        elif "踊り" in user_input or "見上げ" in user_input:
+        elif "見上げ" in user_input:
             movement_queue.put("look up")
             output_text_queue.put("OK, my friend.")
+        elif "踊り" in user_input or "dance" in user_input:
+            #movement_queue.put(move_key)
+            movement_queue.put("dance")
+            output_text_queue.put("OK, let's dance.")
         elif "sit" == move_key or "action" == move_key :
             movement_queue.put(move_key)
             output_text_queue.put("OK, my friend.")
-        elif "walk" in user_input or "come" in user_input or "go" in user_input:
+        elif "walk" in user_input or "come" in user_input or "go" in user_input or "行" in user_input:
             movement_queue.put("move forwards")
             output_text_queue.put("My friend, here I come.")
         elif move_key:
