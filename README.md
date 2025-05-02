@@ -136,3 +136,8 @@ If you want to test the API, run the following command.
 cd ~/apps-md-robots/api/
 python move_api.py
 ```
+
+If you want to test the camera module, run the following command.
+```
+ffmpeg -i /dev/video0 -vf 'scale=320:240' -vframes 1 -an -b:v 500k output.jpg
+```
