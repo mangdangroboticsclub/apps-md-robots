@@ -307,7 +307,7 @@ def gemini_task():
     response = google_api.ai_text_response(conversation, init_input)
     logging.debug(f"init llm and first response: {response}")
 
-    multi_model = ChatVertexAI(model="gemini-pro-vision")
+    multi_model = ChatVertexAI(model="gemini-2.0-flash")
     with Image.open(f"{RES_DIR}/Trot.jpg") as image:
         logging.debug(f"Opened image: 320p")
         if image is None:
