@@ -176,67 +176,55 @@ Example: "greeting,high"
         logging.error(f"Error in intent classification: {e}")
         return "conversation", "low"
 
+# Single array with all intents - just add one line to add new commands!
+INTENT_CONFIG = [
+    # Format: (intent_name, movement_command, response_text)
+    ("movement_forward", "move forwards", "My friend, here I come."),
+    ("movement_backward", "move backwards", "OK, my friend, move backwards immediately."),
+    ("movement_left", "move left", "OK, my friend, move left immediately."),
+    ("movement_right", "move right", "OK, my friend, move right immediately."),
+    ("posture_sit", "sit", "OK, my friend."),
+    ("posture_stand", "action", "OK, my friend."),
+    ("head_up", "look up", "OK, my friend, look up immediately."),
+    ("head_down", "look down", "OK, my friend, look down immediately."),
+    ("head_left", "look left", "OK, my friend, look left immediately."),
+    ("head_right", "look right", "OK, my friend, look right immediately."),
+    ("greeting", "shake", "OK, my friend."),
+    ("dance", "dance", "OK, let's dance."),
+    ("bark", "bark", "Woof woof!"),  # Just add this one line for new command!
+]
+
+# Convert to dictionary for fast lookup
+INTENT_MOVEMENTS = {intent: (movement, response) for intent, movement, response in INTENT_CONFIG}
+
 def execute_intent(intent, confidence, original_input):
     """
     Execute actions based on classified intent.
-    
-    Parameters:
-    - intent (str): The classified intent
-    - confidence (str): Confidence level of classification
-    - original_input (str): Original user input for fallback
-        
-    Returns:
-    - handled (bool): True if intent was handled, False if passed to AI conversation
     """
     logging.info(f"Executing intent: {intent} (confidence: {confidence})")
     
-    if intent == "movement_forward":
-        movement_queue.put("move forwards")
-        output_text_queue.put("My friend, here I come.")
-    elif intent == "movement_backward":
-        movement_queue.put("move backwards")
-        output_text_queue.put("OK, my friend, move backwards immediatly.")
-    elif intent == "movement_left":
-        movement_queue.put("move left")
-        output_text_queue.put("OK, my friend, move left immediatly.")
-    elif intent == "movement_right":
-        movement_queue.put("move right")
-        output_text_queue.put("OK, my friend, move right immediatly.")
-    elif intent == "posture_sit":
-        movement_queue.put("sit")
-        output_text_queue.put("OK, my friend.")
-    elif intent == "posture_stand":
-        movement_queue.put("action")
-        output_text_queue.put("OK, my friend.")
-    elif intent == "head_up":
-        movement_queue.put("look up")
-        output_text_queue.put("OK, my friend, look up immediatly.")
-    elif intent == "head_down":
-        movement_queue.put("look down")
-        output_text_queue.put("OK, my friend, look down immediatly.")
-    elif intent == "head_left":
-        movement_queue.put("look left")
-        output_text_queue.put("OK, my friend, look left immediatly.")
-    elif intent == "head_right":
-        movement_queue.put("look right")
-        output_text_queue.put("OK, my friend, look right immediatly.")
-    elif intent == "greeting":
-        movement_queue.put("shake")
-        output_text_queue.put("OK, my friend.")
-    elif intent == "dance":
-        movement_queue.put("dance")
-        output_text_queue.put("OK, let's dance.")
+    # Handle movement intents from the array
+    if intent in INTENT_MOVEMENTS:
+        movement, response = INTENT_MOVEMENTS[intent]
+        movement_queue.put(movement)
+        output_text_queue.put(response)
+        return True
+    
+    # Handle special cases
     elif intent == "photo":
         input_text_queue.put("take a photo and describe what you see")
         return False
     elif intent == "game_rps":
         output_text_queue.put(GAME_TEXT)
+        return True
     elif intent == "system_sleep":
         close_ai()
         return True
     elif intent == "system_wake":
         open_ai()
         return True
+    
+    # Fallback to conversation
     else:
         logging.debug(f"put voice text to input queue: {original_input}")
         input_text_queue.put(original_input)
