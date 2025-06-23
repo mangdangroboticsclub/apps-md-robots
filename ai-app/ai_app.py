@@ -363,7 +363,7 @@ def stt_task():
         should_stt = stt_queue.get()
         stt_queue.task_done()
         logging.info(f"should_stt: {should_stt}, ai_on:{ai_on}")
-        while not stt_queue.empty(): # clean queue, get the last element, stt need just one
+        while not stt_queue.empty():
             should_stt = stt_queue.get()
             logging.info(f"should_stt: {should_stt}")
             stt_queue.task_done()
@@ -387,12 +387,18 @@ def stt_task():
             logging.debug(f"sys cmd: {sys_cmd_key}")
             sys_cmd_func()
         elif not ai_on:
-            logging.info(f"ai is not on, do not use gemini")
-            stt_queue.put(True)
-            time.sleep(0.5)
-            google_api.stop_speech_to_text(stream)
-            time.sleep(0.5)
-            continue
+            # ADD THIS: Check for wake-up commands when AI is off
+            wake_up_phrases = ["speak please", "wake up", "hello robot", "start talking", "turn on"]
+            if any(wake_phrase in user_input.lower() for wake_phrase in wake_up_phrases):
+                logging.info("Wake up command detected!")
+                open_ai()
+            else:
+                logging.info(f"ai is not on, do not use gemini")
+                stt_queue.put(True)
+                time.sleep(0.5)
+                google_api.stop_speech_to_text(stream)
+                time.sleep(0.5)
+                continue
         else:
             try:
                 intent, confidence = classify_intent_with_gemini(user_input, intent_conversation)
@@ -410,7 +416,6 @@ def stt_task():
         time.sleep(0.5)
         google_api.stop_speech_to_text(stream)
         time.sleep(0.5)
-
 
 def gemini_task():
     """
