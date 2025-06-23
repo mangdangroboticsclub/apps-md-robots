@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Description: This script imports necessary modules and sets up tasks for an interactive AI system.
-# It handles speech-to-text, text-to-speech, AI interactions, image and GIF display, and physical movement commands using threading for concurrent operation.
+# Description: Enhanced AI system with Gemini-based intent recognition for Mini Pupper robot.
+# ENHANCEMENT: Added intelligent intent classification system using Gemini AI for better command understanding
 #
 
 import logging
@@ -102,7 +102,135 @@ move_cmd_functions = {
                  "look upper right": move_api.look_upperright,
                  "look lower right": move_api.look_rightlower,
                  "dance": move_api.dance,
+                 "shake": move_api.shake,
              }
+
+def classify_intent_with_gemini(user_input, conversation):
+    """
+    Use Gemini AI to intelligently classify user intent.
+    
+    Parameters:
+    - user_input (str): The user's voice input to classify
+    - conversation: Gemini conversation context for classification
+        
+    Returns:
+    - intent_name (str): The classified intent
+    - confidence_level (str): The confidence level of classification
+    """
+    intent_prompt = f"""
+You are an intent classifier for a quadruped robot. Classify the following user input into ONE of these intents:
+
+MOVEMENT INTENTS:
+- "movement_forward" - move forward, walk, come here, go forward, come to me
+- "movement_backward" - move backward, go back, reverse, back up
+- "movement_left" - move left, turn left, go left, left side
+- "movement_right" - move right, turn right, go right, right side
+
+BODY POSTURE INTENTS:
+- "posture_sit" - sit, sit down, squat, crouch
+- "posture_stand" - stand, stand up, action, init, get ready
+
+HEAD MOVEMENT INTENTS:
+- "head_up" - look up, head up, look at ceiling
+- "head_down" - look down, head down, look at ground
+- "head_left" - look left, turn head left, look that way
+- "head_right" - look right, turn head right, look over there
+
+SOCIAL INTENTS:
+- "greeting" - hello, hi, shake hand, greet, nice to meet you, handshake, shake
+- "dance" - dance, party, celebrate, boogie, dancing, let's dance
+- "photo" - take photo, picture, camera, smile, photograph, pic
+
+GAME INTENTS:
+- "game_rps" - rock paper scissors, game, play, じゃんけん, let's play
+
+SYSTEM INTENTS:
+- "system_sleep" - shut up, be quiet, sleep, hush, stop talking
+- "system_wake" - speak please, wake up, hello robot, start talking
+
+CONVERSATION INTENT:
+- "conversation" - general chat, questions, anything not covered above
+
+User input: "{user_input}"
+
+Respond with ONLY the intent name and confidence level separated by a comma.
+Example: "greeting,high"
+"""
+
+    try:
+        response = google_api.ai_text_response(conversation, intent_prompt)
+        response = response.strip().lower()
+        
+        if ',' in response:
+            intent, confidence = response.split(',', 1)
+            intent = intent.strip()
+            confidence = confidence.strip()
+        else:
+            intent = response.strip()
+            confidence = "medium"
+            
+        logging.info(f"Intent: {intent}, Confidence: {confidence}")
+        return intent, confidence
+        
+    except Exception as e:
+        logging.error(f"Error in intent classification: {e}")
+        return "conversation", "low"
+
+# Single array with all intents - just add one line to add new commands!
+INTENT_CONFIG = [
+    # Format: (intent_name, movement_command, response_text)
+    ("movement_forward", "move forwards", "My friend, here I come."),
+    ("movement_backward", "move backwards", "OK, my friend, move backwards immediately."),
+    ("movement_left", "move left", "OK, my friend, move left immediately."),
+    ("movement_right", "move right", "OK, my friend, move right immediately."),
+    ("posture_sit", "sit", "OK, my friend."),
+    ("posture_stand", "action", "OK, my friend."),
+    ("head_up", "look up", "OK, my friend, look up immediately."),
+    ("head_down", "look down", "OK, my friend, look down immediately."),
+    ("head_left", "look left", "OK, my friend, look left immediately."),
+    ("head_right", "look right", "OK, my friend, look right immediately."),
+    ("greeting", "shake", "OK, my friend."),
+    ("dance", "dance", "OK, let's dance."),
+    ("bark", "bark", "Woof woof!"),  # Just add this one line for new command!
+]
+
+# Convert to dictionary for fast lookup
+INTENT_MOVEMENTS = {intent: (movement, response) for intent, movement, response in INTENT_CONFIG}
+
+def execute_intent(intent, confidence, original_input):
+    """
+    Execute actions based on classified intent.
+    """
+    logging.info(f"Executing intent: {intent} (confidence: {confidence})")
+    
+    # Handle movement intents from the array
+    if intent in INTENT_MOVEMENTS:
+        movement, response = INTENT_MOVEMENTS[intent]
+        movement_queue.put(movement)
+        output_text_queue.put(response)
+        return True
+    
+    # Handle special cases
+    elif intent == "photo":
+        input_text_queue.put("take a photo and describe what you see")
+        return False
+    elif intent == "game_rps":
+        output_text_queue.put(GAME_TEXT)
+        return True
+    elif intent == "system_sleep":
+        close_ai()
+        return True
+    elif intent == "system_wake":
+        open_ai()
+        return True
+    
+    # Fallback to conversation
+    else:
+        logging.debug(f"put voice text to input queue: {original_input}")
+        input_text_queue.put(original_input)
+        return False
+    
+    return True
 
 def get_move_cmd(input_text, command_dict):
     """
@@ -222,11 +350,12 @@ def remove_emojis(text):
 
 def stt_task():
     """
-    Task for speech-to-text conversion.
+    Task for speech-to-text conversion with enhanced intent recognition.
     """
     logging.debug("stt task start.")
     py_audio = google_api.init_pyaudio()
     speech_client = google_api.init_speech_to_text()
+    intent_conversation = google_api.create_conversation()
     logging.debug("init stt.")
 
     while True:
@@ -257,22 +386,6 @@ def stt_task():
         elif sys_cmd_key:
             logging.debug(f"sys cmd: {sys_cmd_key}")
             sys_cmd_func()
-        elif "見上げ" in user_input:
-            movement_queue.put("look up")
-            output_text_queue.put("OK, my friend.")
-        elif "踊り" in user_input or "dance" in user_input:
-            #movement_queue.put(move_key)
-            movement_queue.put("dance")
-            output_text_queue.put("OK, let's dance.")
-        elif "sit" == move_key or "action" == move_key :
-            movement_queue.put(move_key)
-            output_text_queue.put("OK, my friend.")
-        elif "walk" in user_input or "come" in user_input or "go" in user_input or "行" in user_input:
-            movement_queue.put("move forwards")
-            output_text_queue.put("My friend, here I come.")
-        elif move_key:
-            movement_queue.put(move_key)
-            output_text_queue.put(f"OK, my friend, {move_key} immediatly.")
         elif not ai_on:
             logging.info(f"ai is not on, do not use gemini")
             stt_queue.put(True)
@@ -280,18 +393,20 @@ def stt_task():
             google_api.stop_speech_to_text(stream)
             time.sleep(0.5)
             continue
-        elif "game" in user_input or "play" in user_input or "じゃんけん" in user_input:
-            #movement_queue.put("trot")
-            output_text_queue.put(GAME_TEXT)
-        elif lang:
-            logging.debug(f"switch language: {lang}")
-            user_input += f", Please reply in {lang}."
-            input_text_queue.put(user_input)
-            stt_queue.put(False)
         else:
-            logging.debug(f"put voice text to input queue: {user_input}")
-            input_text_queue.put(user_input)
-            stt_queue.put(False)
+            try:
+                intent, confidence = classify_intent_with_gemini(user_input, intent_conversation)
+                handled = execute_intent(intent, confidence, user_input)
+                
+                if handled:
+                    stt_queue.put(True)
+                else:
+                    stt_queue.put(False)
+                    
+            except Exception as e:
+                logging.error(f"Error in intent processing: {e}")
+                input_text_queue.put(user_input)
+                stt_queue.put(False)
         time.sleep(0.5)
         google_api.stop_speech_to_text(stream)
         time.sleep(0.5)
