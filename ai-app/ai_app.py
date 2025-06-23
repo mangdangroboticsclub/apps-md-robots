@@ -363,7 +363,7 @@ def stt_task():
         should_stt = stt_queue.get()
         stt_queue.task_done()
         logging.info(f"should_stt: {should_stt}, ai_on:{ai_on}")
-        while not stt_queue.empty():
+        while not stt_queue.empty(): # clean queue, get the last element, stt need just one
             should_stt = stt_queue.get()
             logging.info(f"should_stt: {should_stt}")
             stt_queue.task_done()
@@ -416,7 +416,7 @@ def stt_task():
         time.sleep(0.5)
         google_api.stop_speech_to_text(stream)
         time.sleep(0.5)
-
+        
 def gemini_task():
     """
     Task for handling Gemini AI interactions.
