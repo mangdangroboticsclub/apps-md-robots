@@ -102,7 +102,6 @@ move_cmd_functions = {
                  "look upper right": move_api.look_upperright,
                  "look lower right": move_api.look_rightlower,
                  "dance": move_api.dance,
-                 "shake": move_api.shake,
              }
 
 def classify_intent_with_gemini(user_input, conversation):
@@ -137,7 +136,6 @@ HEAD MOVEMENT INTENTS:
 - "head_right" - look right, turn head right, look over there
 
 SOCIAL INTENTS:
-- "greeting" - hello, hi, shake hand, greet, nice to meet you, handshake, shake
 - "dance" - dance, party, celebrate, boogie, dancing, let's dance
 - "photo" - take photo, picture, camera, smile, photograph, pic
 
@@ -189,9 +187,8 @@ INTENT_CONFIG = [
     ("head_down", "look down", "OK, my friend, look down immediately."),
     ("head_left", "look left", "OK, my friend, look left immediately."),
     ("head_right", "look right", "OK, my friend, look right immediately."),
-    ("greeting", "shake", "OK, my friend."),
-    ("dance", "dance", "OK, let's dance."),
-    ("bark", "bark", "Woof woof!"),  # Just add this one line for new command!
+    ("dance", "dance", "OK, let's dance."), 
+    # Just add this one line for new command!
 ]
 
 # Convert to dictionary for fast lookup
@@ -416,7 +413,7 @@ def stt_task():
         time.sleep(0.5)
         google_api.stop_speech_to_text(stream)
         time.sleep(0.5)
-        
+
 def gemini_task():
     """
     Task for handling Gemini AI interactions.
