@@ -126,7 +126,7 @@ sudo journalctl  -f -u ai
 ![GeminiFeedback](imgs/GeminiFeedback.png)
 
 
-If you want to DIY the key words to control the robot by voice, please revise line 262 or line 275.
+If you want to DIY the key words to control the robot by voice, please revise here.
 
 ![keyWordofMovement](imgs/keyWordofMovement.png)
 
