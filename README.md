@@ -71,8 +71,10 @@ Install the dependency libs.
 cd ~/apps-md-robots/ai-app/
 sudo apt-get install -y python3-pyaudio
 sudo apt-get install -y libgl1
-sudo pip install -r requirements.txt 
-
+sudo apt-get install -y portaudio19-dev
+sudo pip install msgpack --break-system-packages
+sudo pip install pillow --break-system-packages
+sudo pip install -r requirements.txt --break-system-packages 
 sudo cp ai.service /etc/systemd/system/ai.service
 ```
 
